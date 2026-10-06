@@ -4,6 +4,7 @@ import { extractErrorMessage } from "../api/errors";
 import { VENUE_CATEGORIES } from "../constants";
 import VenueCard from "../components/VenueCard";
 import StatusMessage from "../components/StatusMessage";
+import CampusMap from "../components/CampusMap";
 
 export default function VenuesPage() {
   const [campuses, setCampuses] = useState([]);
@@ -12,10 +13,15 @@ export default function VenuesPage() {
   const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mapDismissed, setMapDismissed] = useState(false);
 
   useEffect(() => {
     campusesApi.list().then(setCampuses).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    setMapDismissed(false);
+  }, [campusId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,6 +79,14 @@ export default function VenuesPage() {
           </select>
         </div>
       </form>
+
+      {campusId && !mapDismissed && (
+        <CampusMap
+          campusName={campuses.find((c) => c.id === campusId)?.name ?? "Campus"}
+          venues={venues}
+          onClose={() => setMapDismissed(true)}
+        />
+      )}
 
       <StatusMessage tone="error">{error}</StatusMessage>
 

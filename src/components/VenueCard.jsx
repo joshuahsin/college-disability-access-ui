@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { categoryLabel } from "../constants";
+import StatusSummary from "./StatusSummary";
 
 export default function VenueCard({ venue }) {
   return (
@@ -10,6 +11,7 @@ export default function VenueCard({ venue }) {
           <span className="badge badge-category">{categoryLabel(venue.category)}</span>
           {venue.address && <span className="venue-address">{venue.address}</span>}
         </p>
+        <StatusSummary summary={venue.status_summary} />
       </Link>
     </li>
   );

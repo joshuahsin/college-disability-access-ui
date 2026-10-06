@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { confirmationsApi, commentsApi } from "../api/resources";
+import { confirmationsApi, commentsApi, commentReactionsApi } from "../api/resources";
 import { extractErrorMessage } from "../api/errors";
 import { useAuth } from "../context/AuthContext";
 import StatusBadge from "./StatusBadge";
@@ -12,6 +12,7 @@ export default function FeatureRow({ feature, submission, onSubmissionChanged })
   const { username } = useAuth();
   const [confirmations, setConfirmations] = useState([]);
   const [comments, setComments] = useState([]);
+  const [myReactionByCommentId, setMyReactionByCommentId] = useState({});
   const [commentsExpanded, setCommentsExpanded] = useState(false);
   const [error, setError] = useState("");
 
@@ -25,11 +26,26 @@ export default function FeatureRow({ feature, submission, onSubmissionChanged })
       .catch((err) => setError(extractErrorMessage(err, "Could not load votes.")));
   }
 
+  function loadMyReactions(commentsList) {
+    return Promise.all(
+      commentsList.map((c) =>
+        commentReactionsApi
+          .listByComment(c.id)
+          .then((reactions) => [c.id, reactions.find((r) => r.user.username === username) ?? null])
+      )
+    )
+      .then((entries) => setMyReactionByCommentId(Object.fromEntries(entries)))
+      .catch((err) => setError(extractErrorMessage(err, "Could not load comment reactions.")));
+  }
+
   function loadComments() {
     if (!submission) return Promise.resolve();
     return commentsApi
       .listBySubmission(submission.id)
-      .then(setComments)
+      .then((data) => {
+        setComments(data);
+        return loadMyReactions(data);
+      })
       .catch((err) => setError(extractErrorMessage(err, "Could not load comments.")));
   }
 
@@ -46,7 +62,11 @@ export default function FeatureRow({ feature, submission, onSubmissionChanged })
   async function handleDeleteComment(commentId) {
     try {
       await commentsApi.remove(commentId);
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      // Deleting a top-level comment cascades to its replies server-side --
+      // drop those locally too so the list matches what the server now has.
+      setComments((prev) =>
+        prev.filter((c) => c.id !== commentId && c.parent !== commentId)
+      );
     } catch (err) {
       setError(extractErrorMessage(err, "Could not delete comment."));
     }
@@ -95,7 +115,11 @@ export default function FeatureRow({ feature, submission, onSubmissionChanged })
               <CommentList
                 comments={comments}
                 currentUsername={username}
+                submissionId={submission.id}
                 onDelete={handleDeleteComment}
+                onReplyAdded={loadComments}
+                myReactionByCommentId={myReactionByCommentId}
+                onReactionChanged={loadComments}
               />
               <CommentForm submissionId={submission.id} onAdded={loadComments} />
             </div>

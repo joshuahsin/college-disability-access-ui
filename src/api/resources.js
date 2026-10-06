@@ -29,7 +29,17 @@ export const confirmationsApi = {
 
 export const commentsApi = {
   listBySubmission: (submissionId) => list("/comments/", { submission: submissionId }),
-  create: ({ submission, body }) =>
-    client.post("/comments/", { submission, body }).then((r) => r.data),
+  create: ({ submission, body, parent = null }) =>
+    client.post("/comments/", { submission, body, parent }).then((r) => r.data),
   remove: (id) => client.delete(`/comments/${id}/`),
+};
+
+export const commentReactionsApi = {
+  listByComment: (commentId) => list("/comment-reactions/", { comment: commentId }),
+  // Upsert "my reaction" to a comment -- creates it on a first vote, flips
+  // it in place on a switch (LIKE <-> DISLIKE). To undo, delete the
+  // reaction by its own id instead (see `remove` below).
+  react: (commentId, vote) =>
+    client.patch(`/comments/${commentId}/reaction/`, { vote }).then((r) => r.data),
+  remove: (reactionId) => client.delete(`/comment-reactions/${reactionId}/`),
 };

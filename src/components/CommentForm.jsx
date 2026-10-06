@@ -3,7 +3,7 @@ import { commentsApi } from "../api/resources";
 import { extractErrorMessage } from "../api/errors";
 import StatusMessage from "./StatusMessage";
 
-export default function CommentForm({ submissionId, onAdded }) {
+export default function CommentForm({ submissionId, parentId = null, onAdded, autoFocus = false }) {
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -14,7 +14,7 @@ export default function CommentForm({ submissionId, onAdded }) {
     setSubmitting(true);
     setError("");
     try {
-      await commentsApi.create({ submission: submissionId, body });
+      await commentsApi.create({ submission: submissionId, body, parent: parentId });
       setBody("");
       onAdded();
     } catch (err) {
@@ -24,25 +24,29 @@ export default function CommentForm({ submissionId, onAdded }) {
     }
   }
 
-  const labelId = `comment-label-${submissionId}`;
+  const inputId = `comment-input-${parentId ?? "top"}-${submissionId}`;
+  const labelId = `comment-label-${parentId ?? "top"}-${submissionId}`;
+  const labelText = parentId ? "Write a reply" : "Add a comment";
 
   return (
     <form className="comment-form" onSubmit={handleSubmit}>
-      <label id={labelId} htmlFor={`comment-input-${submissionId}`}>
-        Add a comment
+      <label id={labelId} htmlFor={inputId}>
+        {labelText}
       </label>
       <textarea
-        id={`comment-input-${submissionId}`}
+        id={inputId}
         aria-labelledby={labelId}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         maxLength={2000}
         rows={2}
         required
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus={autoFocus}
       />
       <StatusMessage tone="error">{error}</StatusMessage>
       <button type="submit" className="btn btn-secondary" disabled={submitting}>
-        {submitting ? "Posting…" : "Post comment"}
+        {submitting ? "Posting…" : parentId ? "Post reply" : "Post comment"}
       </button>
     </form>
   );

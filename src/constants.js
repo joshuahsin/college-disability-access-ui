@@ -20,3 +20,8 @@ export const VOTE = {
   ACCESSIBLE: "ACCESSIBLE",
   NOT_ACCESSIBLE: "NOT_ACCESSIBLE",
 };
+
+export const REACTION = {
+  LIKE: "LIKE",
+  DISLIKE: "DISLIKE",
+};
