@@ -16,6 +16,7 @@ export default function CommentItem({
     <div className="comment-item">
       <div className="comment-meta">
         <span className="comment-author">{comment.user.username}</span>
+        {comment.user.is_staff && <span className="badge badge-admin">Admin</span>}
         <time dateTime={comment.created_at}>{new Date(comment.created_at).toLocaleString()}</time>
       </div>
       <p className="comment-body">{comment.body}</p>

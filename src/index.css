@@ -17,6 +17,8 @@
   --color-unknown-text: #334155;
   --color-error-bg: #fdeaea;
   --color-error-text: #9a2222;
+  --color-admin-bg: #dbeafe;
+  --color-admin-text: #1d4ed8;
   --radius: 10px;
   --focus-ring: 3px solid #1655c0;
 }
@@ -404,6 +406,11 @@ a {
 .badge-unknown {
   background: var(--color-unknown-bg);
   color: var(--color-unknown-text);
+}
+
+.badge-admin {
+  background: var(--color-admin-bg);
+  color: var(--color-admin-text);
 }
 
 .back-link {
