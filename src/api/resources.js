@@ -6,6 +6,9 @@ function list(path, params) {
 
 export const campusesApi = {
   list: () => list("/campuses/"),
+  create: ({ name }) => client.post("/campuses/", { name }).then((r) => r.data),
+  update: (id, { name }) => client.patch(`/campuses/${id}/`, { name }).then((r) => r.data),
+  remove: (id) => client.delete(`/campuses/${id}/`),
 };
 
 export const featuresApi = {
@@ -15,6 +18,9 @@ export const featuresApi = {
 export const venuesApi = {
   list: ({ campus, category } = {}) => list("/venues/", { campus, category }),
   get: (id) => client.get(`/venues/${id}/`).then((r) => r.data),
+  create: (venue) => client.post("/venues/", venue).then((r) => r.data),
+  update: (id, venue) => client.patch(`/venues/${id}/`, venue).then((r) => r.data),
+  remove: (id) => client.delete(`/venues/${id}/`),
 };
 
 export const submissionsApi = {
