@@ -3,6 +3,16 @@ import { venuesApi } from "../api/resources";
 import { extractErrorMessage } from "../api/errors";
 import { VENUE_CATEGORIES } from "../constants";
 import StatusMessage from "./StatusMessage";
+import LocationPicker from "./LocationPicker";
+import { geocodeAddress } from "../api/geocode";
+
+// "" (an empty field) must read as "no location yet", not as 0 -- Number("")
+// is 0, not NaN, so it needs its own check before falling through to Number().
+function toFiniteNumber(value) {
+  if (value === "" || value === null || value === undefined) return NaN;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : NaN;
+}
 
 const blankVenue = {
   campus: "",
@@ -33,6 +43,25 @@ export default function AdminVenueForm({ campuses, venue = null, onSaved, onCanc
     setValues((prev) => ({ ...prev, [field]: value }));
   }
 
+  function handlePick(lat, lng) {
+    setValues((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+  }
+
+  async function handleCampusChange(campusId) {
+    update("campus", campusId);
+    // Jump the map to the campus's address as a starting point -- just a
+    // default, not authoritative, so a lookup failure here is silent; the
+    // admin can still search or click-to-pick the exact spot themselves.
+    const campus = campuses.find((c) => c.id === campusId);
+    if (!campus?.address) return;
+    try {
+      const result = await geocodeAddress(campus.address);
+      if (result) handlePick(result.lat, result.lon);
+    } catch {
+      // Ignore -- see comment above.
+    }
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setSubmitting(true);
@@ -61,13 +90,25 @@ export default function AdminVenueForm({ campuses, venue = null, onSaved, onCanc
 
   return (
     <form className="admin-venue-form" onSubmit={handleSubmit}>
+      <div className="location-picker-field">
+        <span className="location-picker-label">
+          Location (search an address, or click the map/drag the pin, to set it)
+        </span>
+        <LocationPicker
+          latitude={toFiniteNumber(values.latitude)}
+          longitude={toFiniteNumber(values.longitude)}
+          onPick={handlePick}
+          initialQuery={values.address}
+        />
+      </div>
+
       <div className="admin-form-grid">
         <label htmlFor={`${idPrefix}-campus`}>
           Campus
           <select
             id={`${idPrefix}-campus`}
             value={values.campus}
-            onChange={(e) => update("campus", e.target.value)}
+            onChange={(e) => handleCampusChange(e.target.value)}
             required
           >
             <option value="" disabled>

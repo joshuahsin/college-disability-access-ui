@@ -647,10 +647,57 @@ a {
   border-radius: 6px;
 }
 
+.address-search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.address-search-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.address-search-row input {
+  min-width: 220px;
+}
+
 .admin-venue-form {
   background: var(--color-bg);
   border-radius: 8px;
   padding: 0.9rem;
+}
+
+.location-picker-field {
+  margin-bottom: 0.9rem;
+}
+
+.location-picker-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.location-picker-canvas {
+  height: 260px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.location-picker-search {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.location-picker-search input {
+  flex: 1;
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
 }
 
 .admin-form-grid {

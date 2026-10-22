@@ -5,6 +5,7 @@ import StatusMessage from "../components/StatusMessage";
 import AdminCampusRow from "../components/AdminCampusRow";
 import AdminVenueRow from "../components/AdminVenueRow";
 import AdminVenueForm from "../components/AdminVenueForm";
+import AddressSearchInput from "../components/AddressSearchInput";
 
 export default function AdminPage() {
   const [campuses, setCampuses] = useState([]);
@@ -13,6 +14,7 @@ export default function AdminPage() {
   const [error, setError] = useState("");
 
   const [newCampusName, setNewCampusName] = useState("");
+  const [newCampusAddress, setNewCampusAddress] = useState("");
   const [creatingCampus, setCreatingCampus] = useState(false);
   const [campusError, setCampusError] = useState("");
 
@@ -37,8 +39,9 @@ export default function AdminPage() {
     setCreatingCampus(true);
     setCampusError("");
     try {
-      await campusesApi.create({ name: newCampusName });
+      await campusesApi.create({ name: newCampusName, address: newCampusAddress });
       setNewCampusName("");
+      setNewCampusAddress("");
       await loadAll();
     } catch (err) {
       setCampusError(extractErrorMessage(err, "Could not create campus."));
@@ -78,6 +81,15 @@ export default function AdminPage() {
             onChange={(e) => setNewCampusName(e.target.value)}
             required
           />
+
+          <label htmlFor="new-campus-address">Address (optional)</label>
+          <AddressSearchInput
+            id="new-campus-address"
+            value={newCampusAddress}
+            onChange={setNewCampusAddress}
+            placeholder="e.g. University Dr, Irvine, CA 92697"
+          />
+
           <button type="submit" className="btn btn-primary btn-small" disabled={creatingCampus}>
             {creatingCampus ? "Adding…" : "Add campus"}
           </button>

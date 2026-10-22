@@ -6,8 +6,10 @@ function list(path, params) {
 
 export const campusesApi = {
   list: () => list("/campuses/"),
-  create: ({ name }) => client.post("/campuses/", { name }).then((r) => r.data),
-  update: (id, { name }) => client.patch(`/campuses/${id}/`, { name }).then((r) => r.data),
+  create: ({ name, address = "" }) =>
+    client.post("/campuses/", { name, address }).then((r) => r.data),
+  update: (id, { name, address = "" }) =>
+    client.patch(`/campuses/${id}/`, { name, address }).then((r) => r.data),
   remove: (id) => client.delete(`/campuses/${id}/`),
 };
 
